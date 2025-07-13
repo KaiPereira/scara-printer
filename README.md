@@ -32,3 +32,14 @@ The scara printer uses heavily customized Marlin firmware to make the system wor
 
 ## Bill of Materials (BOM)
 
+Here's the materials you need to build this printer:
+- A LOT of PLA filament
+- 4x NEMA 17 stepper motors
+- 4x TMC2209 stepper drivers
+- 7x Ball Bearings
+- 1x ESP-WROOM-32
+- 2x 9V batteries
+- 1x SG90 servo
+- Lots of wires
+- Assortment of screws and bolts
+
