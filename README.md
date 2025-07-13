@@ -16,9 +16,9 @@ This scara printer uses a double arm system and a drive train to be able to prin
 
 The entire design was built in Onshape by all three of us, the drivetrain is the fundamental part and uses weight to hold up the scara and 3D pen, the 3D pen is then held in using a mount and we use bearings and nema 17's for everything else. The entire project was also 3D printed aside from the electronics, screws, bearings, etc.
 
-![[Pasted image 20250713154933.png]]
-![[Pasted image 20250713155026.png]]
-![[Pasted image 20250713155046.png]]
+![Pasted image 20250713154933.png](images/Pasted%20image%2020250713154933.png)
+![Pasted image 20250713155026.png](images/Pasted%20image%2020250713155026.png)
+![Pasted image 20250713155046.png](images/Pasted%20image%2020250713155046.png)
 
 ## Electronics
 
