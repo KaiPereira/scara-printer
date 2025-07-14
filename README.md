@@ -38,7 +38,7 @@ Here's the materials you need to build this printer:
 - 4x TMC2209 stepper drivers
 - 7x Ball Bearings
 - 1x ESP-WROOM-32
-- 2x 9V batteries
+- 2x 9V batteries or USB PD
 - 1x SG90 servo
 - Lots of wires
 - Assortment of screws and bolts
