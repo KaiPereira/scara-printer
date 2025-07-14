@@ -3,7 +3,7 @@
 
 This scara printer uses a double arm system and a drive train to be able to print in XYZ and utilize the floor as a bed to create a cost-effective, efficient printer. This printer was built for undercity, a 4 day hackathon by @lordbagel42, @vibsthebot and @KaiPereira.
 
-[**PHOTO OF PRINTER HERE***]
+![Pasted image 20250714064541.png](images/Pasted%20image%2020250714064541.png)
 
 ## Custom Features
 
@@ -25,7 +25,7 @@ The entire design was built in Onshape by all three of us, the drivetrain is the
 
 The printer uses many different electronics, and we went through many, many iterations. We used NEMA 17's for our steppers, servo's for small functionality like extruding, a USB PD for power delivery, and a Seeed XIAO RP2040 for the mainboards.
 
-[**PHOTO OF ELECTRONICS HERE***]
+![Pasted image 20250714064618.png](images/Pasted%20image%2020250714064618.png)
 
 ## Firmware
 
