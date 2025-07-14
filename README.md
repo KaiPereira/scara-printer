@@ -10,7 +10,8 @@ This scara printer uses a double arm system and a drive train to be able to prin
 - Double scara arm giving X and Y movement
 - 2 wheel drivetrain which gives movement on the Z, and allows it to print in an infinitely large area
 - 3D pen for the extruder/hotend giving an economical and cool way to print
-- Support for ESP-WROOM-32 and Nema 17 motors
+- Support for Seeed XIAO RP2040 and Nema 17 motors
+- Cost effective and simple design
 
 ## Cad Design
 
@@ -22,13 +23,13 @@ The entire design was built in Onshape by all three of us, the drivetrain is the
 
 ## Electronics
 
-The printer uses many different electronics, and we went through many, many iterations. We used NEMA 17's for our steppers, servo's for small functionality like extruding, 9V to power the thing, and an ESP-WROOM-32 for the mainboard.
+The printer uses many different electronics, and we went through many, many iterations. We used NEMA 17's for our steppers, servo's for small functionality like extruding, a USB PD for power delivery, and a Seeed XIAO RP2040 for the mainboards.
 
 [**PHOTO OF ELECTRONICS HERE***]
 
 ## Firmware
 
-The scara printer uses heavily customized Marlin firmware to make the system work. We went through many different types of firmware, Marlin, grblHAL, custom, FluidNC, all of it, because we didn't have the necessary hardware to make something *normal*.
+The scara printer uses a **fully custom** slicer that will convert a drawing into circuit python script. We went through many different types of firmware, Marlin, grblHAL, custom, FluidNC, all of it, because we didn't have the necessary hardware to make something *normal*. And then in the end, we decided that we really just had to make something custom.
 
 ## Bill of Materials (BOM)
 
@@ -36,11 +37,10 @@ Here's the materials you need to build this printer:
 - A LOT of PLA filament
 - 4x NEMA 17 stepper motors
 - 7x Ball Bearings
-- 9V Batteries
-- 1x ESP-WROOM-32
+- 2x Seeed XIAO RP2040
 - 4x Proto-PIC A4988 Stepper Motor Driver
 - 2x Blot Boards
-- 1x USB-PD up to 20V
+- 1x Blot USB-PD up to 20V
 - 1x SG90 servo
 - Lots of wires
 - Assortment of screws and bolts
