@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Bar Linkage Drawing & Code Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
+        }
+        canvas {
+            cursor: crosshair;
+            border-radius: 0.5rem;
+        }
+        .control-panel {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            background: #3b82f6;
+        }
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn.active {
+            background-color: #3b82f6; /* blue-600 */
+            color: white;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .btn.inactive {
+             background-color: #e2e8f0; /* gray-200 */
+             color: #475569; /* gray-600 */
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 700px;
+            border-radius: 0.5rem;
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">5-Bar Linkage Drawing & Code Generator</h1>
+        <p class="text-gray-600 text-center mb-6">Draw on the canvas, then generate CircuitPython code for your robot.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 control-panel h-fit">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Controls</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-600 mb-3">Mode</h3>
+                     <div class="grid grid-cols-3 gap-2">
+                        <button id="mode-manual" class="btn font-bold py-2 px-4 rounded-lg">Manual</button>
+                        <button id="mode-draw" class="btn font-bold py-2 px-4 rounded-lg">Draw</button>
+                        <button id="mode-point" class="btn font-bold py-2 px-4 rounded-lg">Points</button>
+                    </div>
+                </div>
+
+                <div id="manual-controls">
+                    <h3 class="text-lg font-medium text-gray-600 mb-3">Motor Angles</h3>
+                    <div class="mb-4">
+                        <label for="motor1" class="font-medium text-gray-700">Motor 1 (Left): <span id="motor1-val">90</span>°</label>
+                        <input type="range" id="motor1" min="0" max="180" value="90" class="w-full">
+                    </div>
+                    <div>
+                        <label for="motor2" class="font-medium text-gray-700">Motor 2 (Right): <span id="motor2-val">90</span>°</label>
+                        <input type="range" id="motor2" min="0" max="180" value="90" class="w-full">
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-600 my-3">Linkage Dimensions (mm)</h3>
+                    <div class="space-y-3">
+                         <div>
+                            <label for="motorSeparation" class="block text-sm font-medium text-gray-700">Motor Separation (D)</label>
+                            <input type="number" id="motorSeparation" value="80" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                        </div>
+                        <div>
+                            <label for="proximalLength" class="block text-sm font-medium text-gray-700">Proximal Arms (L1)</label>
+                            <input type="number" id="proximalLength" value="43" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                        </div>
+                        <div>
+                            <label for="distalLength" class="block text-sm font-medium text-gray-700">Distal Arms (L2)</label>
+                            <input type="number" id="distalLength" value="135" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-medium text-gray-600 mb-3">Actions</h3>
+                    <div class="flex flex-col space-y-3">
+                         <button id="generate-code" class="btn w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-green-600">Generate Code</button>
+                         <button id="clear" class="btn w-full bg-red-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-red-600">Clear Drawing</button>
+                    </div>
+                </div>
+                 <div id="info-box" class="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                    Status: Ready. Select a mode.
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-white p-2 rounded-lg shadow-lg relative" style="aspect-ratio: 1.414 / 1;">
+                <canvas id="drawing-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                <canvas id="mechanism-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Generation Modal -->
+    <div id="code-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="text-2xl font-bold mb-4">Generated CircuitPython Code</h2>
+            <p class="text-sm text-gray-600 mb-4">Copy this code and save it as `code.py` on your Seeed XIAO RP2040.</p>
+            <div class="relative">
+                <pre id="code-output" class="bg-gray-800 text-white p-4 rounded-md overflow-x-auto text-sm" style="max-height: 50vh;"></pre>
+                <button id="copy-code-btn" class="absolute top-2 right-2 bg-gray-600 hover:bg-gray-500 text-white text-xs font-bold py-1 px-2 rounded">Copy</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- DOM Elements ---
+        const motor1Slider = document.getElementById('motor1'), motor2Slider = document.getElementById('motor2');
+        const motor1Val = document.getElementById('motor1-val'), motor2Val = document.getElementById('motor2-val');
+        const clearButton = document.getElementById('clear'), infoBox = document.getElementById('info-box');
+        const motorSeparationInput = document.getElementById('motorSeparation');
+        const proximalLengthInput = document.getElementById('proximalLength'), distalLengthInput = document.getElementById('distalLength');
+        const mechanismCanvas = document.getElementById('mechanism-canvas'), drawingCanvas = document.getElementById('drawing-canvas');
+        const ctxMechanism = mechanismCanvas.getContext('2d'), ctxDrawing = drawingCanvas.getContext('2d');
+        const modeManualBtn = document.getElementById('mode-manual'), modeDrawBtn = document.getElementById('mode-draw'), modePointBtn = document.getElementById('mode-point');
+        const manualControls = document.getElementById('manual-controls');
+        const generateCodeBtn = document.getElementById('generate-code');
+        const codeModal = document.getElementById('code-modal'), closeModalBtn = document.querySelector('.close-button');
+        const codeOutput = document.getElementById('code-output'), copyCodeBtn = document.getElementById('copy-code-btn');
+
+        // --- State ---
+        let mode = 'manual'; // 'manual', 'draw', or 'point'
+        let isDrawing = false;
+        let freehandPath = [];
+        let pointPath = [];
+        let L1, L2, D;
+        let scale, originX, originY;
+
+        // --- Kinematics & Drawing ---
+
+        function resizeAndInitialize() {
+            const container = mechanismCanvas.parentElement;
+            mechanismCanvas.width = drawingCanvas.width = container.clientWidth;
+            mechanismCanvas.height = drawingCanvas.height = container.clientHeight;
+            updateParameters();
+            initEventListeners();
+        }
+
+        function updateParameters() {
+            D = parseFloat(motorSeparationInput.value);
+            L1 = parseFloat(proximalLengthInput.value);
+            L2 = parseFloat(distalLengthInput.value);
+            
+            const maxReach = L1 + L2;
+            const workspaceWidth = D + 2 * maxReach;
+            const workspaceHeight = 2 * maxReach;
+            
+            scale = Math.min(mechanismCanvas.width / workspaceWidth, mechanismCanvas.height / workspaceHeight) * 0.8;
+            originX = mechanismCanvas.width / 2;
+            originY = mechanismCanvas.height * 0.75; 
+            
+            clearAll();
+        }
+
+        function solveCircleIntersection(x1, y1, r1, x2, y2, r2) {
+            const d_sq = (x2 - x1)**2 + (y2 - y1)**2;
+            const d = Math.sqrt(d_sq);
+
+            if (d > r1 + r2 || d < Math.abs(r1 - r2) || d === 0) return null;
+
+            const a = (r1**2 - r2**2 + d_sq) / (2 * d);
+            const h = Math.sqrt(Math.max(0, r1**2 - a**2));
+            const x_mid = x1 + a * (x2 - x1) / d;
+            const y_mid = y1 + a * (y2 - y1) / d;
+
+            return [
+                { x: x_mid + h * (y2 - y1) / d, y: y_mid - h * (x2 - x1) / d },
+                { x: x_mid - h * (y2 - y1) / d, y: y_mid + h * (x2 - x1) / d }
+            ];
+        }
+
+        function solveForwardKinematics(theta1, theta2) {
+            const motorPos1 = { x: -D / 2, y: 0 };
+            const motorPos2 = { x: D / 2, y: 0 };
+            const elbow1 = { x: motorPos1.x + L1 * Math.cos(theta1), y: motorPos1.y + L1 * Math.sin(theta1) };
+            const elbow2 = { x: motorPos2.x + L1 * Math.cos(theta2), y: motorPos2.y + L1 * Math.sin(theta2) };
+            const intersections = solveCircleIntersection(elbow1.x, elbow1.y, L2, elbow2.x, elbow2.y, L2);
+            if (!intersections) return null;
+            const endEffector = intersections[0].y > intersections[1].y ? intersections[0] : intersections[1];
+            return { motorPos1, motorPos2, elbow1, elbow2, endEffector };
+        }
+
+        function solveInverseKinematics(x, y) {
+            const motorPos1 = { x: -D / 2, y: 0 };
+            const motorPos2 = { x: D / 2, y: 0 };
+
+            const elbows1 = solveCircleIntersection(motorPos1.x, motorPos1.y, L1, x, y, L2);
+            const elbows2 = solveCircleIntersection(motorPos2.x, motorPos2.y, L1, x, y, L2);
+
+            if (!elbows1 || !elbows2) return null;
+
+            const e1 = (elbows1[0].x * y - elbows1[0].y * x) > (elbows1[1].x * y - elbows1[1].y * x) ? elbows1[0] : elbows1[1];
+            const e2 = (elbows2[0].x * y - elbows2[0].y * x) < (elbows2[1].x * y - elbows2[1].y * x) ? elbows2[0] : elbows2[1];
+
+            const theta1 = Math.atan2(e1.y - motorPos1.y, e1.x - motorPos1.x);
+            const theta2 = Math.atan2(e2.y - motorPos2.y, e2.x - motorPos2.x);
+
+            const validation = solveForwardKinematics(theta1, theta2);
+            if (!validation || Math.hypot(validation.endEffector.x - x, validation.endEffector.y - y) > 1) {
+                return null;
+            }
+
+            return { theta1, theta2 };
+        }
+
+        function drawMechanism(kinematics) {
+            ctxMechanism.clearRect(0, 0, mechanismCanvas.width, mechanismCanvas.height);
+            if (!kinematics) return;
+            ctxMechanism.save();
+            ctxMechanism.translate(originX, originY);
+            
+            const { motorPos1, motorPos2, elbow1, elbow2, endEffector } = kinematics;
+            
+            drawArm(motorPos1, elbow1, "#4a5568");
+            drawArm(motorPos2, elbow2, "#4a5568");
+            drawArm(elbow1, endEffector, "#2b6cb0");
+            drawArm(elbow2, endEffector, "#2b6cb0");
+            
+            drawJoint(motorPos1, 8, "#d9534f");
+            drawJoint(motorPos2, 8, "#d9534f");
+            drawJoint(elbow1, 6, "#4a5568");
+            drawJoint(elbow2, 6, "#4a5568");
+            drawJoint(endEffector, 8, "#2c5282");
+
+            ctxMechanism.restore();
+        }
+
+        function drawArm(p1, p2, color) {
+            ctxMechanism.beginPath();
+            ctxMechanism.moveTo(p1.x * scale, -p1.y * scale);
+            ctxMechanism.lineTo(p2.x * scale, -p2.y * scale);
+            ctxMechanism.strokeStyle = color;
+            ctxMechanism.lineWidth = 4;
+            ctxMechanism.stroke();
+        }
+
+        function drawJoint(p, radius, color) {
+            ctxMechanism.beginPath();
+            ctxMechanism.arc(p.x * scale, -p.y * scale, radius, 0, 2 * Math.PI);
+            ctxMechanism.fillStyle = color;
+            ctxMechanism.fill();
+        }
+
+        function redrawDrawing() {
+            ctxDrawing.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+            if (mode === 'draw') {
+                redrawFreehandPath();
+            } else if (mode === 'point') {
+                redrawPointPath();
+            }
+        }
+
+        function redrawFreehandPath() {
+            if (freehandPath.length < 2) return;
+            ctxDrawing.save();
+            ctxDrawing.translate(originX, originY);
+            ctxDrawing.strokeStyle = "#000000";
+            ctxDrawing.lineWidth = 2;
+            ctxDrawing.lineCap = "round";
+            ctxDrawing.lineJoin = "round";
+            ctxDrawing.beginPath();
+            ctxDrawing.moveTo(freehandPath[0].x * scale, -freehandPath[0].y * scale);
+            for (let i = 1; i < freehandPath.length; i++) {
+                ctxDrawing.lineTo(freehandPath[i].x * scale, -freehandPath[i].y * scale);
+            }
+            ctxDrawing.stroke();
+            ctxDrawing.restore();
+        }
+        
+        function redrawPointPath() {
+            if (pointPath.length === 0) return;
+            ctxDrawing.save();
+            ctxDrawing.translate(originX, originY);
+            
+            // Draw lines
+            if (pointPath.length > 1) {
+                ctxDrawing.strokeStyle = "#000000";
+                ctxDrawing.lineWidth = 2;
+                ctxDrawing.beginPath();
+                ctxDrawing.moveTo(pointPath[0].x * scale, -pointPath[0].y * scale);
+                for (let i = 1; i < pointPath.length; i++) {
+                    ctxDrawing.lineTo(pointPath[i].x * scale, -pointPath[i].y * scale);
+                }
+                ctxDrawing.stroke();
+            }
+
+            // Draw points
+            pointPath.forEach(p => {
+                ctxDrawing.beginPath();
+                ctxDrawing.arc(p.x * scale, -p.y * scale, 5, 0, 2 * Math.PI);
+                ctxDrawing.fillStyle = "#3b82f6";
+                ctxDrawing.fill();
+            });
+
+            ctxDrawing.restore();
+        }
+        
+        function clearAll() {
+            freehandPath = [];
+            pointPath = [];
+            redrawDrawing();
+            const theta1 = (parseFloat(motor1Slider.value)) * Math.PI / 180;
+            const theta2 = (parseFloat(motor2Slider.value)) * Math.PI / 180;
+            const kinematics = solveForwardKinematics(theta1, theta2);
+            drawMechanism(kinematics);
+        }
+
+        // --- Event Handlers & UI Logic ---
+
+        function setMode(newMode) {
+            mode = newMode;
+            const buttons = [modeManualBtn, modeDrawBtn, modePointBtn];
+            buttons.forEach(btn => {
+                btn.classList.remove('active', 'inactive');
+                if (btn.id === `mode-${newMode}`) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.add('inactive');
+                }
+            });
+            
+            manualControls.style.display = (mode === 'manual') ? 'block' : 'none';
+
+            if (mode === 'manual') infoBox.textContent = "Mode: Manual Control. Use sliders.";
+            if (mode === 'draw') infoBox.textContent = "Mode: Draw. Click and drag on the canvas.";
+            if (mode === 'point') infoBox.textContent = "Mode: Points. Click to place points to form lines.";
+            
+            clearAll();
+        }
+        
+        function getCanvasCoords(e) {
+            const rect = mechanismCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        function handleCanvasDown(e) {
+            const { x, y } = getCanvasCoords(e);
+            const modelCoords = { x: (x - originX) / scale, y: -(y - originY) / scale };
+
+            if (!solveInverseKinematics(modelCoords.x, modelCoords.y)) {
+                infoBox.textContent = "Point is out of reach!";
+                return;
+            }
+
+            if (mode === 'draw') {
+                isDrawing = true;
+                freehandPath = [modelCoords];
+            } else if (mode === 'point') {
+                pointPath.push(modelCoords);
+                redrawDrawing();
+            }
+        }
+
+        function handleCanvasMove(e) {
+            if (mode !== 'draw' || !isDrawing) return;
+            e.preventDefault();
+            const { x, y } = getCanvasCoords(e);
+            const modelCoords = { x: (x - originX) / scale, y: -(y - originY) / scale };
+            
+            if (solveInverseKinematics(modelCoords.x, modelCoords.y)) {
+                freehandPath.push(modelCoords);
+                redrawDrawing();
+            }
+        }
+
+        function handleCanvasUp(e) {
+            if (mode === 'draw') {
+                isDrawing = false;
+            }
+        }
+
+        function generateCode() {
+            let pathForRobot = [];
+            if (mode === 'draw' && freehandPath.length >= 2) {
+                pathForRobot = freehandPath;
+            } else if (mode === 'point' && pointPath.length >= 2) {
+                // Interpolate between points for a smooth path
+                let interpolatedPath = [];
+                for (let i = 0; i < pointPath.length - 1; i++) {
+                    const p1 = pointPath[i];
+                    const p2 = pointPath[i+1];
+                    const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+                    const numSteps = Math.max(1, Math.round(dist)); // At least 1 step per mm
+                    for (let j = 0; j <= numSteps; j++) {
+                        const t = j / numSteps;
+                        const interpX = p1.x + t * (p2.x - p1.x);
+                        const interpY = p1.y + t * (p2.y - p1.y);
+                        interpolatedPath.push({ x: interpX, y: interpY });
+                    }
+                }
+                pathForRobot = interpolatedPath;
+            } else {
+                alert("Please draw a path with at least two points first!");
+                return;
+            }
+
+            let anglePath = [];
+            for (const point of pathForRobot) {
+                const angles = solveInverseKinematics(point.x, point.y);
+                if (angles) {
+                    const t1_degrees = angles.theta1 * 180 / Math.PI;
+                    const t2_degrees = angles.theta2 * 180 / Math.PI;
+                    
+                    // *** CHANGE: Reverse both motor angles for the output code ***
+                    const reversed_t1_degrees = 180.0 - t1_degrees; 
+                    const reversed_t2_degrees = 180.0 - t2_degrees; 
+
+                    anglePath.push({
+                        t1: reversed_t1_degrees,
+                        t2: reversed_t2_degrees
+                    });
+                }
+            }
+            
+            const maxPoints = 300;
+            if (anglePath.length > maxPoints) {
+                const step = Math.ceil(anglePath.length / maxPoints);
+                anglePath = anglePath.filter((_, i) => i % step === 0);
+            }
+
+            const pathData = anglePath.map(p => `    (${p.t1.toFixed(3)}, ${p.t2.toFixed(3)})`).join(',\n');
+            
+            const pythonCode = `# CircuitPython 5-Bar Linkage Controller
+# Code generated by web simulator. Copy and save as code.py on your XIAO RP2040.
+
+import board
+import digitalio
+import time
+
+# --- Configuration ---
+# STEPPER MOTOR SETUP
+STEPS_PER_REV = 200  # NEMA 17 is typically 200 steps/rev
+MICROSTEPS = 16      # As set on your A4988 driver
+TOTAL_STEPS_PER_REV = STEPS_PER_REV * MICROSTEPS
+# Increased delay for slower, smoother movement.
+STEP_DELAY = 0.004  # Adjust for speed vs. torque. Higher is slower.
+
+# PIN DEFINITIONS (as specified by user)
+DIR1_PIN = board.D7
+STEP1_PIN = board.D8
+DIR2_PIN = board.D9
+STEP2_PIN = board.D10
+
+# --- Path Data (Generated) ---
+# List of (motor1_angle, motor2_angle) tuples in degrees.
+# Note: Both motor angles have been reversed (180 - angle).
+PATH_DATA = [
+${pathData}
+]
+
+# --- Stepper Control Class ---
+class Stepper:
+    def __init__(self, dir_pin, step_pin, initial_angle=90.0):
+        self.dir = digitalio.DigitalInOut(dir_pin)
+        self.dir.direction = digitalio.Direction.OUTPUT
+        self.step = digitalio.DigitalInOut(step_pin)
+        self.step.direction = digitalio.Direction.OUTPUT
+        self.current_angle = float(initial_angle)
+
+    def move_to_angle(self, target_angle):
+        angle_diff = target_angle - self.current_angle
+        if abs(angle_diff) < 0.01:
+            return
+            
+        steps_to_move = int(round(angle_diff / 360.0 * TOTAL_STEPS_PER_REV))
+        
+        self.dir.value = True if steps_to_move > 0 else False
+        
+        for _ in range(abs(steps_to_move)):
+            self.step.value = True
+            time.sleep(STEP_DELAY / 2)
+            self.step.value = False
+            time.sleep(STEP_DELAY / 2)
+            
+        self.current_angle = float(target_angle)
+
+# --- Main Program ---
+def main():
+    print("Initializing 5-Bar Linkage...")
+    
+    if not PATH_DATA:
+        print("No path data. Halting.")
+        return
+
+    # Assume the robot is manually positioned at the start of the path.
+    # Set the initial angles of the steppers to the first point in the path data.
+    start_t1, start_t2 = PATH_DATA[0]
+    motor1 = Stepper(DIR1_PIN, STEP1_PIN, initial_angle=start_t1)
+    motor2 = Stepper(DIR2_PIN, STEP2_PIN, initial_angle=start_t2)
+
+    print("Starting drawing from current position.")
+    print(f"Initial angles assumed: ({start_t1:.1f}, {start_t2:.1f})")
+    time.sleep(2) # A small pause before the drawing starts
+
+    # Execute the path, starting from the second point since we're already at the first.
+    # The loop iterates through the rest of the path data.
+    for i, (target_t1, target_t2) in enumerate(PATH_DATA[1:]):
+        print(f"Step {i+1}/{len(PATH_DATA)-1} -> ({target_t1:.1f}, {target_t2:.1f})")
+        
+        # This is a simple implementation. A more advanced version would
+        # use Bresenham's line algorithm to move both motors simultaneously.
+        motor1.move_to_angle(target_t1)
+        motor2.move_to_angle(target_t2)
+
+    print("Drawing complete.")
+
+if __name__ == "__main__":
+    main()
+`;
+            codeOutput.textContent = pythonCode;
+            codeModal.style.display = 'flex';
+        }
+
+
+        function initEventListeners() {
+            [motor1Slider, motor2Slider].forEach(slider => {
+                slider.addEventListener('input', () => {
+                    if (mode !== 'manual') setMode('manual');
+                    motor1Val.textContent = motor1Slider.value;
+                    motor2Val.textContent = motor2Slider.value;
+                    const theta1 = (parseFloat(motor1Slider.value)) * Math.PI / 180;
+                    const theta2 = (parseFloat(motor2Slider.value)) * Math.PI / 180;
+                    const kinematics = solveForwardKinematics(theta1, theta2);
+                    drawMechanism(kinematics);
+                });
+            });
+
+            [motorSeparationInput, proximalLengthInput, distalLengthInput].forEach(input => {
+                input.addEventListener('change', updateParameters);
+            });
+
+            clearButton.addEventListener('click', clearAll);
+            modeManualBtn.addEventListener('click', () => setMode('manual'));
+            modeDrawBtn.addEventListener('click', () => setMode('draw'));
+            modePointBtn.addEventListener('click', () => setMode('point'));
+            generateCodeBtn.addEventListener('click', generateCode);
+
+            mechanismCanvas.addEventListener('mousedown', handleCanvasDown);
+            mechanismCanvas.addEventListener('mousemove', handleCanvasMove);
+            mechanismCanvas.addEventListener('mouseup', handleCanvasUp);
+            mechanismCanvas.addEventListener('mouseleave', handleCanvasUp);
+            mechanismCanvas.addEventListener('touchstart', handleCanvasDown, { passive: true });
+            mechanismCanvas.addEventListener('touchmove', handleCanvasMove, { passive: false });
+            mechanismCanvas.addEventListener('touchend', handleCanvasUp);
+
+            closeModalBtn.addEventListener('click', () => codeModal.style.display = 'none');
+            window.addEventListener('click', (e) => {
+                if (e.target == codeModal) codeModal.style.display = 'none';
+            });
+            copyCodeBtn.addEventListener('click', () => {
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = codeOutput.textContent;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+                copyCodeBtn.textContent = "Copied!";
+                setTimeout(() => { copyCodeBtn.textContent = "Copy"; }, 2000);
+            });
+        }
+
+        // --- Initial Load ---
+        window.addEventListener('load', resizeAndInitialize);
+        window.addEventListener('resize', resizeAndInitialize);
+        setMode('manual');
+
+    </script>
+</body>
+</html>
+
