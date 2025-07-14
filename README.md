@@ -10,7 +10,7 @@ This scara printer uses a double arm system and a drive train to be able to prin
 - Double scara arm giving X and Y movement
 - 2 wheel drivetrain which gives movement on the Z, and allows it to print in an infinitely large area
 - 3D pen for the extruder/hotend giving an economical and cool way to print
-- Support for the Manta M8P V1.1 and Nema 17 motors
+- Support for ESP-WROOM-32 and Nema 17 motors
 
 ## Cad Design
 
@@ -22,7 +22,7 @@ The entire design was built in Onshape by all three of us, the drivetrain is the
 
 ## Electronics
 
-The printer uses many different electronics, and we went through many, many iterations. We used NEMA 17's for our steppers, servo's for small functionality like extruding, 9V to power the thing, and a Manta M8P V1.1 for the mainboard.
+The printer uses many different electronics, and we went through many, many iterations. We used NEMA 17's for our steppers, servo's for small functionality like extruding, 9V to power the thing, and an ESP-WROOM-32 for the mainboard.
 
 [**PHOTO OF ELECTRONICS HERE***]
 
@@ -37,7 +37,10 @@ Here's the materials you need to build this printer:
 - 4x NEMA 17 stepper motors
 - 7x Ball Bearings
 - 9V Batteries
-- 1x Manta M8P V1.1 board
+- 1x ESP-WROOM-32
+- 4x Proto-PIC A4988 Stepper Motor Driver
+- 2x Blot Boards
+- 1x USB-PD up to 20V
 - 1x SG90 servo
 - Lots of wires
 - Assortment of screws and bolts
