@@ -10,7 +10,7 @@ This scara printer uses a double arm system and a drive train to be able to prin
 - Double scara arm giving X and Y movement
 - 2 wheel drivetrain which gives movement on the Z, and allows it to print in an infinitely large area
 - 3D pen for the extruder/hotend giving an economical and cool way to print
-- Support for the ESP32 and Nema 17 motors
+- Support for the Manta M8P V1.1 and Nema 17 motors
 
 ## Cad Design
 
@@ -22,23 +22,22 @@ The entire design was built in Onshape by all three of us, the drivetrain is the
 
 ## Electronics
 
-The printer uses many different electronics, and we went through many, many iterations. We used NEMA 17's for our steppers, servo's for small functionality like extruding, TMC2209 drivers to run the steppers, an ESP32 for our brains, and a hole lotta wires.
+The printer uses many different electronics, and we went through many, many iterations. We used NEMA 17's for our steppers, servo's for small functionality like extruding, 9V to power the thing, and a Manta M8P V1.1 for the mainboard.
 
 [**PHOTO OF ELECTRONICS HERE***]
 
 ## Firmware
 
-The scara printer uses heavily customized Marlin firmware to make the system work. We went through nearly 4 different types of firmware, grblHAL, custom, FluidNC, all of it, because we didn't have the necessary hardware to make something *normal*.
+The scara printer uses heavily customized Marlin firmware to make the system work. We went through many different types of firmware, Marlin, grblHAL, custom, FluidNC, all of it, because we didn't have the necessary hardware to make something *normal*.
 
 ## Bill of Materials (BOM)
 
 Here's the materials you need to build this printer:
 - A LOT of PLA filament
 - 4x NEMA 17 stepper motors
-- 4x TMC2209 stepper drivers
 - 7x Ball Bearings
-- 1x ESP-WROOM-32
-- 2x 9V batteries or USB PD
+- 9V Batteries
+- 1x Manta M8P V1.1 board
 - 1x SG90 servo
 - Lots of wires
 - Assortment of screws and bolts
