@@ -1,7 +1,7 @@
 
 # Double Arm Scara 3D Pen Plotter
 
-This scara printer uses a double arm system and a drive train to be able to print in XYZ and utilize the floor as a bed to create a cost-effective, efficient printer. This printer was built for undercity, a 4 day hackathon by @lordbagel42, @vibsthebot and @KaiPereira.
+This scara printer uses a double arm scara 5-bar linkage system to be able to print in XY and utilize the floor as a bed to create a cost-effective, efficient printer/pen plotter. This printer was built for undercity, a 4 day hackathon by @lordbagel42, @vibsthebot and @KaiPereira.
 
 ![Pasted image 20250714064541.png](images/Pasted%20image%2020250714064541.png)
 
