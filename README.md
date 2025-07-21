@@ -1,7 +1,7 @@
 
 # Double Arm Scara 2D Printer
 
-This scara printer uses a double arm scara 5-bar linkage system to be able to print in XY and utilize the floor as a bed to create a cost-effective, efficient printer/pen plotter. This printer was built for undercity, a 4 day hackathon by @lordbagel42, @vibsthebot and @KaiPereira.
+This scara printer uses a double arm scara 5-bar linkage system to be able to print in XY and utilize the floor as a bed to create a cost-effective, efficient printer/pen plotter. This printer was built for undercity, a 4 day hackathon by @lordbagel42, @vibsthebot and @KaiPereira. [Slightly Working Demo](https://www.youtube.com/shorts/rTIAOmObG48)
 
 ![Pasted image 20250714064541.png](images/Pasted%20image%2020250714064541.png)
 
