@@ -27,6 +27,9 @@ The printer uses many different electronics, and we went through many, many iter
 
 ![Pasted image 20250714064618.png](images/Pasted%20image%2020250714064618.png)
 
+<img width="1022" height="1190" alt="image" src="https://github.com/user-attachments/assets/f1142cbf-a6f2-490b-a4ad-6e6cda2d9d87" />
+
+
 ## Firmware
 
 The scara printer uses a **fully custom** slicer that will convert a drawing into circuit python script. We went through many different types of firmware, Marlin, grblHAL, custom, FluidNC, all of it, because we didn't have the necessary hardware to make something *normal*. And then in the end, we decided that we really just had to make something custom.
